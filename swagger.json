@@ -13,7 +13,9 @@
   "paths": {
     "/": {
       "get": {
-        "tags": [],
+        "tags": [
+          "Hello World"
+        ],
         "description": "",
         "responses": {
           "200": {
@@ -24,7 +26,9 @@
     },
     "/users/": {
       "get": {
-        "tags": [],
+        "tags": [
+          "Users"
+        ],
         "description": "",
         "produces": [
           "application/json"
