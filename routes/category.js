@@ -1,35 +1,27 @@
 const express = require("express");
 const router = express.Router();
-const products = require("../controllers/products");
-const auth = require("../middleware/authMiddleware");
-
-const authRoutes = require("./auth");
-
-router.use("/auth", authRoutes);
-router.use("/", require("./swagger"));
-router.use("/categories", require("./category"));
+const categories = require("../controllers/categories");
+const auth = require("../middleware/authMiddleware"); 
 
 /**
  * @swagger
  * tags:
- *   name: Products
- *   description: Product management
+ *   name: Categories
+ *   description: Category management
  */
 
 /**
  * @swagger
- * /:
+ * /categories:
  *   get:
- *     summary: Get all products
- *     tags: [Products]
- *     security:
- *       - BearerAuth: []
+ *     summary: Get all categories
+ *     tags: [Categories]
  *     responses:
  *       200:
- *         description: A list of products
+ *         description: A list of categories
  *   post:
- *     summary: Create a new product
- *     tags: [Products]
+ *     summary: Create a new category
+ *     tags: [Categories]
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -41,32 +33,27 @@ router.use("/categories", require("./category"));
  *             properties:
  *               name:
  *                 type: string
- *                 example: Smart TV
- *               price:
- *                 type: number
- *                 example: 599.99
+ *                 example: Electronics
  *               description:
  *                 type: string
- *                 example: A 55-inch 4K Smart TV with HDR support.
+ *                 example: Devices and gadgets
  *     responses:
  *       201:
- *         description: Product created successfully
+ *         description: Category created successfully
  *       400:
  *         description: Bad request
  *       401:
  *         description: Unauthorized
  */
-router.get("/", auth, products.getProducts);
-router.post("/", auth, products.createProduct);
+router.get("/", categories.getCategories);
+router.post("/", auth, categories.createCategory);
 
 /**
  * @swagger
- * /{id}:
+ * /categories/{id}:
  *   get:
- *     summary: Get a product by ID
- *     tags: [Products]
- *     security:
- *       - BearerAuth: []
+ *     summary: Get category by ID
+ *     tags: [Categories]
  *     parameters:
  *       - in: path
  *         name: id
@@ -75,12 +62,12 @@ router.post("/", auth, products.createProduct);
  *           type: string
  *     responses:
  *       200:
- *         description: Product details
+ *         description: Category details
  *       404:
- *         description: Product not found
+ *         description: Category not found
  *   put:
- *     summary: Update a product
- *     tags: [Products]
+ *     summary: Update a category
+ *     tags: [Categories]
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -98,25 +85,22 @@ router.post("/", auth, products.createProduct);
  *             properties:
  *               name:
  *                 type: string
- *                 example: Updated Smart TV
- *               price:
- *                 type: number
- *                 example: 649.99
+ *                 example: Updated Category
  *               description:
  *                 type: string
- *                 example: A 55-inch 4K Smart TV with HDR and Dolby Vision support.
+ *                 example: Updated description
  *     responses:
  *       200:
- *         description: Product updated successfully
+ *         description: Category updated successfully
  *       400:
  *         description: Bad request
  *       401:
  *         description: Unauthorized
  *       404:
- *         description: Product not found
+ *         description: Category not found
  *   delete:
- *     summary: Delete a product
- *     tags: [Products]
+ *     summary: Delete a category
+ *     tags: [Categories]
  *     security:
  *       - BearerAuth: []
  *     parameters:
@@ -127,14 +111,14 @@ router.post("/", auth, products.createProduct);
  *           type: string
  *     responses:
  *       200:
- *         description: Product deleted successfully
+ *         description: Category deleted successfully
  *       401:
  *         description: Unauthorized
  *       404:
- *         description: Product not found
+ *         description: Category not found
  */
-router.get("/:id", auth, products.getProductById);
-router.put("/:id", auth, products.updateProduct);
-router.delete("/:id", auth, products.deleteProduct);
+router.get("/:id", categories.getCategoryById);
+router.put("/:id", auth, categories.updateCategory);
+router.delete("/:id", auth, categories.deleteCategory);
 
 module.exports = router;
