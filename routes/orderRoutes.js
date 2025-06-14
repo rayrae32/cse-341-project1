@@ -1,27 +1,55 @@
 const express = require("express");
 const router = express.Router();
-const categories = require("../controllers/categories");
-const auth = require("../middleware/authMiddleware"); 
+const authMiddleware = require("../middleware/authMiddleware");
+const orderController = require("../controllers/orderController");
+const { body } = require("express-validator");
 
 /**
  * @swagger
  * tags:
- *   name: Categories
- *   description: Category management
+ *   name: Orders
+ *   description: API for managing orders
  */
 
 /**
  * @swagger
- * /categories:
+ * /orders:
  *   get:
- *     summary: Get all categories
- *     tags: [Categories]
+ *     summary: Get all orders
+ *     tags: [Orders]
  *     responses:
  *       200:
- *         description: A list of categories
+ *         description: List of all orders
+ */
+router.get("/", orderController.getOrders);
+
+/**
+ * @swagger
+ * /orders/{id}:
+ *   get:
+ *     summary: Get a specific order by ID
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         description: ID of the order
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Order found
+ *       404:
+ *         description: Order not found
+ */
+router.get("/:id", orderController.getOrderById);
+
+/**
+ * @swagger
+ * /orders:
  *   post:
- *     summary: Create a new category
- *     tags: [Categories]
+ *     summary: Create a new order
+ *     tags: [Orders]
  *     security:
  *       - BearerAuth: []
  *     requestBody:
@@ -30,50 +58,53 @@ const auth = require("../middleware/authMiddleware");
  *         application/json:
  *           schema:
  *             type: object
+ *             required:
+ *               - userId
+ *               - productId
+ *               - quantity
+ *               - totalPrice
  *             properties:
- *               name:
+ *               userId:
  *                 type: string
- *                 example: Electronics
- *               description:
+ *               productId:
  *                 type: string
- *                 example: Devices and gadgets
+ *               quantity:
+ *                 type: integer
+ *               totalPrice:
+ *                 type: number
  *     responses:
  *       201:
- *         description: Category created successfully
+ *         description: Order created successfully
  *       400:
- *         description: Bad request
+ *         description: Invalid input
  *       401:
  *         description: Unauthorized
  */
-router.get("/", categories.getCategories);
-router.post("/", auth, categories.createCategory);
+router.post(
+    "/",
+    authMiddleware,
+    [
+        body("userId").notEmpty().withMessage("User ID is required"),
+        body("productId").notEmpty().withMessage("Product ID is required"),
+        body("quantity").isInt({ min: 1 }).withMessage("Quantity must be a positive number"),
+        body("totalPrice").isNumeric().withMessage("Total price must be a number")
+    ],
+    orderController.createOrder
+);
 
 /**
  * @swagger
- * /categories/{id}:
- *   get:
- *     summary: Get category by ID
- *     tags: [Categories]
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Category details
- *       404:
- *         description: Category not found
+ * /orders/{id}:
  *   put:
- *     summary: Update a category
- *     tags: [Categories]
+ *     summary: Update an existing order
+ *     tags: [Orders]
  *     security:
  *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID of the order to update
  *         schema:
  *           type: string
  *     requestBody:
@@ -83,42 +114,43 @@ router.post("/", auth, categories.createCategory);
  *           schema:
  *             type: object
  *             properties:
- *               name:
- *                 type: string
- *                 example: Updated Category
- *               description:
- *                 type: string
- *                 example: Updated description
+ *               quantity:
+ *                 type: integer
+ *               totalPrice:
+ *                 type: number
  *     responses:
  *       200:
- *         description: Category updated successfully
- *       400:
- *         description: Bad request
+ *         description: Order updated successfully
+ *       404:
+ *         description: Order not found
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Category not found
+ */
+router.put("/:id", authMiddleware, orderController.updateOrder);
+
+/**
+ * @swagger
+ * /orders/{id}:
  *   delete:
- *     summary: Delete a category
- *     tags: [Categories]
+ *     summary: Delete an order
+ *     tags: [Orders]
  *     security:
  *       - BearerAuth: []
  *     parameters:
  *       - in: path
  *         name: id
  *         required: true
+ *         description: ID of the order to delete
  *         schema:
  *           type: string
  *     responses:
  *       200:
- *         description: Category deleted successfully
+ *         description: Order deleted
+ *       404:
+ *         description: Order not found
  *       401:
  *         description: Unauthorized
- *       404:
- *         description: Category not found
  */
-router.get("/:id", categories.getCategoryById);
-router.put("/:id", auth, categories.updateCategory);
-router.delete("/:id", auth, categories.deleteCategory);
+router.delete("/:id", authMiddleware, orderController.deleteOrder);
 
 module.exports = router;
